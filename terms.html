@@ -1,15 +1,125 @@
-<h1>Terms of Use</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms of Use - Mahavishnu Temple</title>
+  <meta name="description" content="Terms of use for the Mulaykkal Sri Mahavishnu Kshetram website.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+Malayalam:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
 
-<p>By accessing this website, you agree to use it for lawful purposes only.</p>
+<nav>
+  <a href="index.html#hero" class="nav-brand">🕉 Mahavishnu Temple</a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html#deities">Deities</a></li>
+    <li><a href="index.html#poojas">Poojas</a></li>
+    <li><a href="index.html#ulsavam">Ulsavam</a></li>
+    <li><a href="gallery.html">Gallery</a></li>
+    <li><a href="index.html#administration">Administration</a></li>
+    <li><a href="documents.html">Documents</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <div class="nav-toggle" id="navToggle" onclick="toggleNav()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
 
-<h2>Content</h2>
-<p>All content on this website is for informational purposes related to temple activities, events, and services.</p>
+<main class="legal-page">
+  <section class="legal-hero">
+    <div class="section-inner">
+      <p class="section-label">Website Guidelines</p>
+      <h1 class="legal-title">Terms of Use</h1>
+      <p class="legal-intro">
+        These terms explain the simple conditions for using the Mulaykkal Sri Mahavishnu Kshetram website and its public information.
+      </p>
+      <div class="legal-meta">
+        <span>Last updated: May 2026</span>
+        <span>Mulaykkal Dewaswom Trust</span>
+      </div>
+    </div>
+  </section>
 
-<h2>Accuracy</h2>
-<p>We strive to keep information accurate, but we do not guarantee completeness or correctness at all times.</p>
+  <section class="legal-content">
+    <div class="legal-summary">
+      <a href="#lawful-use">Lawful Use</a>
+      <a href="#content">Content</a>
+      <a href="#accuracy">Accuracy</a>
+      <a href="#external-links">External Links</a>
+      <a href="#changes">Changes</a>
+      <a href="#contact">Contact</a>
+    </div>
 
-<h2>External Links</h2>
-<p>Our website may contain links to external sites. We are not responsible for their content.</p>
+    <article class="legal-card" id="lawful-use">
+      <div class="legal-card-icon">01</div>
+      <div>
+        <h2>Lawful Use</h2>
+        <p>By accessing this website, you agree to use it only for lawful, respectful, and non-disruptive purposes.</p>
+      </div>
+    </article>
 
-<h2>Changes</h2>
-<p>We may update these terms at any time without notice.</p>
+    <article class="legal-card" id="content">
+      <div class="legal-card-icon">02</div>
+      <div>
+        <h2>Temple Information</h2>
+        <p>All content on this website is provided for informational purposes related to temple activities, events, services, documents, and community updates.</p>
+      </div>
+    </article>
+
+    <article class="legal-card" id="accuracy">
+      <div class="legal-card-icon">03</div>
+      <div>
+        <h2>Accuracy</h2>
+        <p>We make reasonable efforts to keep website information accurate and current, but we do not guarantee that all details will always be complete, correct, or immediately updated.</p>
+      </div>
+    </article>
+
+    <article class="legal-card" id="external-links">
+      <div class="legal-card-icon">04</div>
+      <div>
+        <h2>External Links</h2>
+        <p>This website may include links to external websites or services. Those websites are managed by their respective owners, and we are not responsible for their content, policies, or availability.</p>
+      </div>
+    </article>
+
+    <article class="legal-card" id="changes">
+      <div class="legal-card-icon">05</div>
+      <div>
+        <h2>Updates to These Terms</h2>
+        <p>We may update these terms from time to time. Updated terms will be posted on this page with a revised update date.</p>
+      </div>
+    </article>
+
+    <article class="legal-card legal-contact-card" id="contact">
+      <div>
+        <p class="section-label">Questions</p>
+        <h2>Contact the Temple</h2>
+        <p>For questions about these terms, please contact the temple office.</p>
+      </div>
+      <a class="btn-gold" href="mailto:info@mahavishnutemple.com">Email Us</a>
+    </article>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-name">Mahavishnu Kshetram</div>
+  <div class="footer-sub" style="margin-top:4px;">Mulaykkal Dewaswom Trust · Archal, Kerala</div>
+  <div class="footer-sub" style="margin-top:24px; font-size:11px; letter-spacing:1px;">ഓം നമോ നാരായണായ</div>
+  <div class="footer-links">
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="terms.html">Terms of Use</a>
+  </div>
+  <div class="footer-credit">Site done by Shankar and Co.</div>
+</footer>
+
+<script>
+  function toggleNav() {
+    const links = document.getElementById('navLinks');
+    links.classList.toggle('open');
+  }
+</script>
+</body>
+</html>
