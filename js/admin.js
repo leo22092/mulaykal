@@ -98,7 +98,19 @@ window.saveToCloud = async function () {
   } catch (e) {
     alert("❌ Connection error. Could not reach Cloudflare.\n" + e.message);
   } finally {
-    if (btn) btn.innerText = "☁️ Save to Cloud";
+    if (btn) btn.innerText = "☁ Publish To Cloudflare Worker";
+  }
+}
+
+// Compatibility for any deployed HTML/cache still calling the newer button name.
+window.publishToWorker = window.saveToCloud;
+
+window.saveLocal = function () {
+  try {
+    localStorage.setItem('templeDataDraft', JSON.stringify(state));
+    alert("Draft saved on this device. Use Publish To Cloudflare Worker to update the live site.");
+  } catch (e) {
+    alert("Could not save draft: " + e.message);
   }
 }
 
