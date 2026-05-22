@@ -3,6 +3,8 @@
 const CLOUDFLARE_API_URL = "https://temple-data.tkm22092.workers.dev";
 // Only load strictly from data.js initially. 
 let data = window.templeData;
+let lightboxImages = [];
+let activeLightboxIndex = 0;
 
 async function init() {
   if (CLOUDFLARE_API_URL) {
@@ -220,15 +222,105 @@ function buildGallery() {
     return;
   }
 
-  images.forEach(img => {
+  lightboxImages = images.filter(img => img && img.url);
+
+  lightboxImages.forEach((img, index) => {
     const div = document.createElement('div');
     div.className = 'gallery-item';
-    div.innerHTML = `<img src="${img.url}" 
-                          style="width:100%; height:100%; object-fit:cover;" 
-                          alt="${img.label || ''}" 
-                          title="${img.label || ''}">`;
+
+    const image = document.createElement('img');
+    image.src = img.url;
+    image.alt = img.label || albumName;
+    image.title = img.label || albumName;
+    image.loading = 'lazy';
+    image.decoding = 'async';
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'gallery-open';
+    button.setAttribute('aria-label', `Open ${image.alt}`);
+    button.addEventListener('click', () => openLightbox(index));
+    button.appendChild(image);
+
+    div.appendChild(button);
     grid.appendChild(div);
   });
+}
+
+function ensureLightbox() {
+  let lightbox = document.getElementById('galleryLightbox');
+  if (lightbox) return lightbox;
+
+  lightbox = document.createElement('div');
+  lightbox.id = 'galleryLightbox';
+  lightbox.className = 'gallery-lightbox';
+  lightbox.setAttribute('role', 'dialog');
+  lightbox.setAttribute('aria-modal', 'true');
+  lightbox.setAttribute('aria-label', 'Gallery image viewer');
+  lightbox.innerHTML = `
+    <button type="button" class="lightbox-close" aria-label="Close image viewer">&times;</button>
+    <button type="button" class="lightbox-nav lightbox-prev" aria-label="Previous image">&#8249;</button>
+    <figure class="lightbox-frame">
+      <img class="lightbox-image" alt="">
+      <figcaption class="lightbox-caption"></figcaption>
+    </figure>
+    <button type="button" class="lightbox-nav lightbox-next" aria-label="Next image">&#8250;</button>
+  `;
+
+  lightbox.addEventListener('click', event => {
+    if (event.target === lightbox) closeLightbox();
+  });
+  lightbox.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
+  lightbox.querySelector('.lightbox-prev').addEventListener('click', () => showLightboxImage(activeLightboxIndex - 1));
+  lightbox.querySelector('.lightbox-next').addEventListener('click', () => showLightboxImage(activeLightboxIndex + 1));
+
+  document.body.appendChild(lightbox);
+  return lightbox;
+}
+
+function openLightbox(index) {
+  if (!lightboxImages.length) return;
+
+  const lightbox = ensureLightbox();
+  showLightboxImage(index);
+  lightbox.classList.add('active');
+  document.body.classList.add('lightbox-open');
+  lightbox.querySelector('.lightbox-close').focus();
+  document.addEventListener('keydown', handleLightboxKeydown);
+}
+
+function closeLightbox() {
+  const lightbox = document.getElementById('galleryLightbox');
+  if (!lightbox) return;
+
+  lightbox.classList.remove('active');
+  document.body.classList.remove('lightbox-open');
+  document.removeEventListener('keydown', handleLightboxKeydown);
+}
+
+function showLightboxImage(index) {
+  const lightbox = ensureLightbox();
+  activeLightboxIndex = (index + lightboxImages.length) % lightboxImages.length;
+
+  const item = lightboxImages[activeLightboxIndex];
+  const image = lightbox.querySelector('.lightbox-image');
+  const caption = lightbox.querySelector('.lightbox-caption');
+  const label = item.label || '';
+
+  image.src = item.url;
+  image.alt = label || 'Temple gallery photo';
+  caption.textContent = label;
+  caption.hidden = !label;
+
+  const hideNav = lightboxImages.length < 2;
+  lightbox.querySelector('.lightbox-prev').hidden = hideNav;
+  lightbox.querySelector('.lightbox-next').hidden = hideNav;
+}
+
+function handleLightboxKeydown(event) {
+  if (event.key === 'Escape') closeLightbox();
+  if (event.key === 'ArrowLeft') showLightboxImage(activeLightboxIndex - 1);
+  if (event.key === 'ArrowRight') showLightboxImage(activeLightboxIndex + 1);
 }
 
 

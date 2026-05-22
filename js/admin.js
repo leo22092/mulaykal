@@ -8,6 +8,87 @@ const CLOUDFLARE_API_URL = "https://temple-data.tkm22092.workers.dev";
 
 let state = null;
 
+function getAdminToken() {
+  return sessionStorage.getItem('templeAdminToken') || localStorage.getItem('templeAdminToken') || "";
+}
+
+function uploadEndpoint() {
+  return CLOUDFLARE_API_URL.replace(/\/+$/, "") + "/upload";
+}
+
+function slugify(value) {
+  return String(value || "gallery")
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "gallery";
+}
+
+window.adminLogout = function () {
+  sessionStorage.removeItem('templeAdminToken');
+  localStorage.removeItem('templeAdminToken');
+  window.location.href = "login.html";
+}
+
+async function uploadImageFile(file, folder) {
+  const token = getAdminToken();
+  if (!token) {
+    throw new Error("Please log in again before uploading.");
+  }
+
+  const form = new FormData();
+  form.append("file", file);
+  form.append("folder", folder);
+
+  const res = await fetch(uploadEndpoint(), {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    },
+    body: form
+  });
+
+  const responseText = await res.text();
+  let result = {};
+  try {
+    result = responseText ? JSON.parse(responseText) : {};
+  } catch (error) {
+    result = { error: responseText };
+  }
+
+  if (!res.ok || !result.url) {
+    throw new Error(result.error || responseText || `HTTP ${res.status}`);
+  }
+
+  return result.url;
+}
+
+window.uploadSingleImageToField = async function (fileInputId, urlInputId, statusId, folder, button) {
+  const fileInput = document.getElementById(fileInputId);
+  const urlInput = document.getElementById(urlInputId);
+  const status = document.getElementById(statusId);
+  const file = fileInput && fileInput.files ? fileInput.files[0] : null;
+
+  if (!file) {
+    alert("Choose an image file first.");
+    return;
+  }
+
+  if (button) button.disabled = true;
+  if (status) status.textContent = "Uploading...";
+
+  try {
+    const url = await uploadImageFile(file, folder);
+    if (urlInput) urlInput.value = url;
+    if (status) status.textContent = "Upload complete. Save this form, then publish to Cloudflare.";
+    fileInput.value = "";
+  } catch (error) {
+    if (status) status.textContent = "Upload failed.";
+    alert("Upload failed: " + error.message);
+  } finally {
+    if (button) button.disabled = false;
+  }
+}
+
 // ── Bootstrap ────────────────────────────────────────────────
 async function initAdmin() {
   // Load fallback from data.js
@@ -69,8 +150,8 @@ window.saveToCloud = async function () {
     return;
   }
 
-  // Prompt for the admin password
-  const password = prompt("🔐 Enter admin password to save to cloud:");
+  // Use the same token collected by login.html. Fall back to a prompt for older sessions.
+  const password = getAdminToken() || prompt("🔐 Enter admin password to save to cloud:");
   if (!password) return;
 
   const btn = document.getElementById('saveCloudBtn');
@@ -152,17 +233,75 @@ window.renderGallery = function (area) {
       <button class="btn-secondary" style="margin-top:20px;" onclick="window.addGalleryArchive()">+ New Album</button>
     </div>
     <div class="form-group">
-      <label>Add photo URL</label>
+      <label>Upload photos to Cloudflare R2</label>
+      <div style="display:flex; gap:10px; margin-bottom:8px; align-items:center;">
+        <input type="file" id="g_files" accept="image/jpeg,image/png,image/webp,image/gif" multiple style="flex:1;">
+        <button class="btn-secondary" id="g_upload_btn" onclick="window.uploadGalleryPhotos()">Upload</button>
+      </div>
+      <div id="g_upload_status" class="upload-status"></div>
+      <p style="font-size:11px; color:#666; margin-top:4px;">Uploads return a permanent public R2 URL and add it to this album.</p>
+    </div>
+    <div class="form-group">
+      <label>Add photo URL manually</label>
       <div style="display:flex; gap:10px; margin-bottom:8px;">
-        <input type="text" id="g_url" placeholder="Paste Image URL (Google Drive, Imgur, etc.)" style="flex:1;">
+        <input type="text" id="g_url" placeholder="Paste existing image URL" style="flex:1;">
         <button class="btn-secondary" onclick="window.addPhotoUrl()">Add</button>
       </div>
-      <p style="font-size:11px; color:#3498db; margin-top:4px;">Photos stored as links — no storage limits.</p>
+      <p style="font-size:11px; color:#3498db; margin-top:4px;">Use this only for older Google Drive or external image links.</p>
     </div>
   </div>
   <div id="g_grid" class="grid-list" style="grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));"></div>`;
   area.innerHTML = html;
   setTimeout(window.renderGalleryGrid, 10);
+}
+
+window.uploadGalleryPhotos = async function () {
+  const albumEl = document.getElementById('g_album');
+  const filesEl = document.getElementById('g_files');
+  const status = document.getElementById('g_upload_status');
+  const button = document.getElementById('g_upload_btn');
+  const token = getAdminToken();
+
+  if (!albumEl || !filesEl) return;
+  if (!token) {
+    alert("Please log in again before uploading.");
+    window.location.href = "login.html";
+    return;
+  }
+
+  const album = albumEl.value;
+  const files = Array.from(filesEl.files || []);
+  if (!files.length) {
+    alert("Choose one or more image files first.");
+    return;
+  }
+
+  if (!state.gallery[album]) state.gallery[album] = [];
+  if (button) button.disabled = true;
+  if (status) status.textContent = `Uploading 0 of ${files.length}...`;
+
+  try {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const url = await uploadImageFile(file, `gallery/${slugify(album)}`);
+
+      state.gallery[album].push({
+        url,
+        label: file.name.replace(/\.[^.]+$/, "")
+      });
+
+      if (status) status.textContent = `Uploading ${i + 1} of ${files.length}...`;
+      window.renderGalleryGrid();
+    }
+
+    filesEl.value = "";
+    if (status) status.textContent = "Upload complete. Click Publish To Cloudflare Worker to save the album.";
+  } catch (error) {
+    if (status) status.textContent = "Upload failed.";
+    alert("Upload failed: " + error.message);
+  } finally {
+    if (button) button.disabled = false;
+  }
 }
 
 window.addPhotoUrl = function () {
@@ -263,6 +402,11 @@ window.editTrustee = function (i) {
       <div class="form-group">
         <label>Photo URL</label>
         <input type="text" id="t_photo_url" placeholder="Paste Image URL" style="width:100%;" value="${t.photo && t.photo.startsWith('http') ? t.photo : ''}">
+        <div style="display:flex; gap:10px; margin-top:10px; align-items:center;">
+          <input type="file" id="t_photo_file" accept="image/jpeg,image/png,image/webp,image/gif" style="flex:1;">
+          <button class="btn-secondary" type="button" onclick="window.uploadSingleImageToField('t_photo_file', 't_photo_url', 't_photo_status', 'trustees', this)">Upload Photo</button>
+        </div>
+        <div id="t_photo_status" class="upload-status"></div>
         ${t.photo ? `<img src="${t.photo}" style="max-height:80px; margin-top:10px;">` : ''}
       </div>
       <button onclick="window.saveTrustee(${i})">Save</button>
@@ -324,6 +468,11 @@ window.editAcharya = function (i) {
       <div class="form-group">
         <label>Photo URL</label>
         <input type="text" id="a_photo_url" placeholder="Paste Image URL" style="width:100%;" value="${a.photo && a.photo.startsWith('http') ? a.photo : ''}">
+        <div style="display:flex; gap:10px; margin-top:10px; align-items:center;">
+          <input type="file" id="a_photo_file" accept="image/jpeg,image/png,image/webp,image/gif" style="flex:1;">
+          <button class="btn-secondary" type="button" onclick="window.uploadSingleImageToField('a_photo_file', 'a_photo_url', 'a_photo_status', 'acharyas', this)">Upload Photo</button>
+        </div>
+        <div id="a_photo_status" class="upload-status"></div>
         ${a.photo ? `<img src="${a.photo}" style="max-height:80px; margin-top:10px;">` : ''}
       </div>
       <button onclick="window.saveAcharya(${i})">Save</button>
@@ -417,6 +566,11 @@ function renderContacts(area) {
         <input type="text" id="g_hero_url" placeholder="Paste Image URL" style="flex:1;" value="${state.global && state.global.heroImage ? state.global.heroImage : ''}">
         <button class="btn-secondary" onclick="window.saveHeroUrl()">Set Hero</button>
       </div>
+      <div style="display:flex; gap:10px; margin-top:10px; align-items:center;">
+        <input type="file" id="g_hero_file" accept="image/jpeg,image/png,image/webp,image/gif" style="flex:1;">
+        <button class="btn-secondary" type="button" onclick="window.uploadSingleImageToField('g_hero_file', 'g_hero_url', 'g_hero_status', 'hero', this)">Upload Hero</button>
+      </div>
+      <div id="g_hero_status" class="upload-status"></div>
     </div>
     <div class="form-group">
       <label><input type="checkbox" id="g_notif_enabled" ${state.global.notification.enabled ? 'checked' : ''}> Enable Notification Banner</label>
