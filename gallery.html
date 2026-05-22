@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photo Gallery — Mahavishnu Temple</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+Malayalam:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* Enlarged gallery view for standalone page */
+.gallery-grid { 
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+  gap: 16px; 
+}
+.gallery-item {
+  aspect-ratio: 1; /* uniform squares */
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.gallery-item img {
+  transition: transform 0.4s ease, filter 0.4s ease;
+}
+.gallery-item:hover img {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+.gallery-albums {
+  justify-content: center;
+  margin-bottom: 3rem;
+  gap: 12px;
+}
+.album-tab {
+  padding: 10px 24px;
+  font-size: 13px;
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html#hero" class="nav-brand">🕉 Mahavishnu Temple</a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html#deities">Deities</a></li>
+    <li><a href="index.html#poojas">Poojas</a></li>
+    <li><a href="index.html#ulsavam">Ulsavam</a></li>
+    <li><a href="gallery.html" class="active" style="color: var(--gold-light);">Gallery</a></li>
+    <li><a href="index.html#acharyas">Guides</a></li>
+    <li><a href="index.html#administration">Administration</a></li>
+    <li><a href="index.html#trustees">Trustees</a></li>
+    <li><a href="documents.html">Documents</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <div class="nav-toggle" id="navToggle" onclick="toggleNav()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<section class="full-bleed bg-warm" style="min-height: 80vh; padding-top: 120px;">
+  <div class="section-inner">
+    <p class="section-label">Visual Journey</p>
+    <h2 class="section-title">Temple Archives & Gallery</h2>
+    <p style="text-align:center; color:var(--muted); font-style:italic; margin-bottom:2.5rem; max-width:720px; margin-left:auto; margin-right:auto;">
+      A collection of divine moments, rituals, and utsavam celebrations from our temple.
+    </p>
+    
+    <div class="gallery-albums" id="galleryTabs"></div>
+    <div class="gallery-grid fade-in" id="galleryGrid"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-name">Mahavishnu Kshetram</div>
+  <div class="footer-sub" style="margin-top:4px;">Mulaykkal Dewaswom Trust · Archal, Kerala</div>
+  <div class="footer-sub" style="margin-top:24px; font-size:11px; letter-spacing:1px;">
+    ഓം നമോ നാരായണായ
+  </div>
+  <div class="footer-credit">Site done by Shankar and Co.</div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

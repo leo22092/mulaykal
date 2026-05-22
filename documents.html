@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notices & Documents — Mahavishnu Temple</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+Malayalam:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .documents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+  .doc-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 1.75rem; position: relative; overflow: hidden; transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s; display: flex; flex-direction: column; gap: 1rem; text-decoration: none; }
+  .doc-card:hover { transform: translateY(-2px); border-color: var(--gold-light); box-shadow: var(--shadow); }
+  .doc-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--gold), var(--saffron)); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+  .doc-card:hover::before { transform: scaleX(1); }
+  
+  .doc-header { display: flex; align-items: center; gap: 12px; }
+  .doc-icon { width: 44px; height: 44px; border-radius: 50%; background: var(--gold-faint); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--gold); }
+  .doc-title { font-family: var(--font-head); font-size: 15px; color: var(--dark); font-weight: 600; line-height: 1.4; flex: 1; }
+  .doc-type { font-size: 10px; font-family: var(--font-head); letter-spacing: 1px; color: var(--saffron); background: rgba(232,98,26,0.08); border: 1px solid rgba(232,98,26,0.2); padding: 4px 10px; border-radius: 2px; text-transform: uppercase; width: fit-content;}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html#hero" class="nav-brand">🕉 Mahavishnu Temple</a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html#deities">Deities</a></li>
+    <li><a href="index.html#poojas">Poojas</a></li>
+    <li><a href="index.html#ulsavam">Ulsavam</a></li>
+    <li><a href="gallery.html">Gallery</a></li>
+    <li><a href="index.html#acharyas">Guides</a></li>
+    <li><a href="index.html#administration">Administration</a></li>
+    <li><a href="index.html#trustees">Trustees</a></li>
+    <li><a href="documents.html">Documents</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <div class="nav-toggle" id="navToggle" onclick="toggleNav()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<section id="documents-section" class="full-bleed bg-warm" style="min-height: 80vh; padding-top: 120px;">
+  <div class="section-inner">
+    <p class="section-label">Official Records</p>
+    <h2 class="section-title">Notices & Documents</h2>
+    <p style="text-align:center; color:var(--muted); font-style:italic; margin-bottom:2.5rem; max-width:720px; margin-left:auto; margin-right:auto;">
+      Browse through the temple's official byelaws, meeting minutes, notices, and other important documents.
+    </p>
+    <div class="documents-grid fade-in" id="documentsGrid"></div>
+  </div>
+</section>
+
+<section id="contact" class="full-bleed bg-dark" style="background: var(--deep); border-top: 1px solid var(--border-strong);">
+<div class="section-inner">
+  <p class="section-label" style="color: var(--gold);">Get In Touch</p>
+  <h2 class="section-title light">Contact Us</h2>
+  <div class="contact-layout fade-in" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 3rem; align-items: center; justify-content: center; text-align: center;">
+      <div style="margin-bottom: 1.5rem;">
+        <p style="line-height: 1.6; font-size: 16px; margin: 0; color: var(--gold-pale);">
+          Mulaykkal Sri Mahavishnu Kshetram,<br>
+          Archal, Kerala - 691506<br><br>
+          <a href="tel:+919946320621" style="color: var(--gold-pale); text-decoration: none; transition: 0.2s;">+91 9946320621</a> | 
+          <a href="mailto:info@mahavishnutemple.com" style="color: var(--gold-pale); text-decoration: none; transition: 0.2s;">info@mahavishnutemple.com</a>
+        </p>
+      </div>
+  </div>
+</div>
+</section>
+
+<footer>
+  <div class="footer-name">Mahavishnu Kshetram</div>
+  <div class="footer-sub" style="margin-top:4px;">Mulaykkal Dewaswom Trust · Archal, Kerala</div>
+  <div class="footer-sub" style="margin-top:24px; font-size:11px; letter-spacing:1px;">
+    ഓം നമോ നാരായണായ
+  </div>
+  <div class="footer-credit">Site done by Shankar and Co.</div>
+</footer>
+
+<script src="js/data.js"></script>
+<script>
+  function toggleNav() {
+    const links = document.getElementById('navLinks');
+    links.classList.toggle('open');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Fade in elements
+    const fadeEls = document.querySelectorAll('.fade-in');
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if(e.isIntersecting) {
+          e.target.classList.add('visible');
+          obs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    fadeEls.forEach(el => obs.observe(el));
+
+    // Render documents
+    const grid = document.getElementById('documentsGrid');
+    const docs = window.templeData.documents || [];
+    
+    if (docs.length === 0) {
+      grid.innerHTML = '<p style="text-align:center; color:var(--muted); font-style:italic; grid-column: 1 / -1;">No documents available currently.</p>';
+      return;
+    }
+
+    grid.innerHTML = docs.map(doc => {
+      let icon = '📄';
+      if (doc.type.toLowerCase() === 'pdf') icon = '📑';
+      else if (doc.type.toLowerCase() === 'doc') icon = '📝';
+      else if (doc.type.toLowerCase() === 'notice') icon = '📢';
+
+      return `
+        <a href="${doc.url}" target="_blank" class="doc-card">
+          <div class="doc-header">
+            <div class="doc-icon">${icon}</div>
+            <div class="doc-title">${doc.title}</div>
+          </div>
+          <div class="doc-type">${doc.type}</div>
+        </a>
+      `;
+    }).join('');
+  });
+</script>
+</body>
+</html>
