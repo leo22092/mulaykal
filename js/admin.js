@@ -23,6 +23,12 @@ function slugify(value) {
     .replace(/^-+|-+$/g, "") || "gallery";
 }
 
+function formatBytes(bytes) {
+  if (!bytes) return "0 KB";
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 window.adminLogout = function () {
   sessionStorage.removeItem('templeAdminToken');
   localStorage.removeItem('templeAdminToken');
@@ -62,7 +68,56 @@ async function uploadImageFile(file, folder) {
   return result.url;
 }
 
-window.uploadSingleImageToField = async function (fileInputId, urlInputId, statusId, folder, button) {
+function compressionOptionsForFolder(folder) {
+  if (folder === "trustees") return { maxSize: 900, quality: 0.82 };
+  if (folder === "acharyas") return { maxSize: 1000, quality: 0.82 };
+  if (String(folder).startsWith("gallery/")) return { maxSize: 1600, quality: 0.82 };
+  return null;
+}
+
+function canvasToBlob(canvas, type, quality) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(blob => {
+      if (blob) resolve(blob);
+      else reject(new Error("Could not compress image."));
+    }, type, quality);
+  });
+}
+
+async function compressImageForUpload(file, options) {
+  if (!options || file.type === "image/gif" || !file.type.startsWith("image/")) {
+    return { file, message: null };
+  }
+
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, options.maxSize / Math.max(bitmap.width, bitmap.height));
+  const width = Math.max(1, Math.round(bitmap.width * scale));
+  const height = Math.max(1, Math.round(bitmap.height * scale));
+  const canvas = document.createElement("canvas");
+
+  canvas.width = width;
+  canvas.height = height;
+  canvas.getContext("2d").drawImage(bitmap, 0, 0, width, height);
+  if (typeof bitmap.close === "function") bitmap.close();
+
+  const blob = await canvasToBlob(canvas, "image/webp", options.quality);
+  if (blob.size >= file.size && file.type === "image/webp" && scale === 1) {
+    return { file, message: `Kept original ${formatBytes(file.size)}` };
+  }
+
+  const optimizedName = file.name.replace(/\.[^.]+$/, "") + ".webp";
+  const optimizedFile = new File([blob], optimizedName, {
+    type: "image/webp",
+    lastModified: Date.now()
+  });
+
+  return {
+    file: optimizedFile,
+    message: `Compressed ${formatBytes(file.size)} -> ${formatBytes(optimizedFile.size)}`
+  };
+}
+
+window.uploadSingleImageToField = async function (fileInputId, urlInputId, statusId, folder, button, shouldCompress = true) {
   const fileInput = document.getElementById(fileInputId);
   const urlInput = document.getElementById(urlInputId);
   const status = document.getElementById(statusId);
@@ -74,12 +129,19 @@ window.uploadSingleImageToField = async function (fileInputId, urlInputId, statu
   }
 
   if (button) button.disabled = true;
-  if (status) status.textContent = "Uploading...";
+  if (status) status.textContent = shouldCompress ? "Preparing image..." : "Uploading...";
 
   try {
-    const url = await uploadImageFile(file, folder);
+    const prepared = shouldCompress
+      ? await compressImageForUpload(file, compressionOptionsForFolder(folder))
+      : { file, message: null };
+    if (status) status.textContent = prepared.message ? `${prepared.message}. Uploading...` : "Uploading...";
+
+    const url = await uploadImageFile(prepared.file, folder);
     if (urlInput) urlInput.value = url;
-    if (status) status.textContent = "Upload complete. Save this form, then publish to Cloudflare.";
+    if (status) {
+      status.textContent = `${prepared.message ? prepared.message + ". " : ""}Upload complete. Save this form, then publish to Cloudflare.`;
+    }
     fileInput.value = "";
   } catch (error) {
     if (status) status.textContent = "Upload failed.";
@@ -278,16 +340,21 @@ window.uploadGalleryPhotos = async function () {
 
   if (!state.gallery[album]) state.gallery[album] = [];
   if (button) button.disabled = true;
-  if (status) status.textContent = `Uploading 0 of ${files.length}...`;
+  if (status) status.textContent = `Preparing 0 of ${files.length}...`;
 
   try {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const url = await uploadImageFile(file, `gallery/${slugify(album)}`);
+      if (status) status.textContent = `Preparing ${i + 1} of ${files.length}...`;
+      const prepared = await compressImageForUpload(file, compressionOptionsForFolder(`gallery/${slugify(album)}`));
+      if (status) {
+        status.textContent = `${prepared.message ? prepared.message + ". " : ""}Uploading ${i + 1} of ${files.length}...`;
+      }
+      const url = await uploadImageFile(prepared.file, `gallery/${slugify(album)}`);
 
       state.gallery[album].push({
         url,
-        label: file.name.replace(/\.[^.]+$/, "")
+        label: prepared.file.name.replace(/\.[^.]+$/, "")
       });
 
       if (status) status.textContent = `Uploading ${i + 1} of ${files.length}...`;
@@ -568,7 +635,7 @@ function renderContacts(area) {
       </div>
       <div style="display:flex; gap:10px; margin-top:10px; align-items:center;">
         <input type="file" id="g_hero_file" accept="image/jpeg,image/png,image/webp,image/gif" style="flex:1;">
-        <button class="btn-secondary" type="button" onclick="window.uploadSingleImageToField('g_hero_file', 'g_hero_url', 'g_hero_status', 'hero', this)">Upload Hero</button>
+        <button class="btn-secondary" type="button" onclick="window.uploadSingleImageToField('g_hero_file', 'g_hero_url', 'g_hero_status', 'hero', this, false)">Upload Hero</button>
       </div>
       <div id="g_hero_status" class="upload-status"></div>
     </div>
