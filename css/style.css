@@ -1,7 +1,7 @@
   :root {
     --gold: #C9963A; --gold-light: #E8B84B; --gold-pale: #F5E6C8; --gold-faint: #FDF7EC;
     --saffron: #E8621A; --saffron-light: #F07840; --cream: #FEFAF2; --deep: #1A0E00;
-    --dark: #2C1A00; --mid: #5C3D10; --muted: #8B6A35;
+    --dark: #2C1A00; --mid: #432C0A; --muted: #654719;
     --border: rgba(201,150,58,0.25); --border-strong: rgba(201,150,58,0.5);
     --shadow: 0 4px 32px rgba(42,20,0,0.12); --radius: 4px;
     --font-head: 'Cinzel', serif; --font-body: 'Cormorant Garamond', serif;
@@ -45,6 +45,7 @@
   @keyframes blink { 0%,100%{opacity:0.4} 50%{opacity:1} }
   
   section { padding: 5rem 2rem; max-width: 1100px; margin: 0 auto; position: relative; z-index: 2; }
+  section:not(#hero)::before { content: ''; position: absolute; top: 0; left: 50%; width: min(220px, 42vw); height: 1px; transform: translateX(-50%); background: linear-gradient(90deg, transparent, rgba(201,150,58,0.65), transparent); }
   section.full-bleed { max-width: none; padding: 5rem 0; }
   .section-inner { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
   .section-label { font-family: var(--font-head); font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); text-align: center; margin-bottom: 0.5rem; }
@@ -56,8 +57,8 @@
   .bg-cream { background: var(--cream); }
   
   .deities-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1.5rem; }
-  .deity-card { background: var(--cream); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem 1rem; text-align: center; transition: border-color 0.2s, transform 0.2s; }
-  .deity-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+  .deity-card { background: rgba(255,255,255,0.78); border: 1px solid var(--border); border-top: 3px solid rgba(201,150,58,0.72); border-radius: var(--radius); padding: 1.5rem 1rem; text-align: center; box-shadow: 0 8px 28px rgba(42,20,0,0.06); transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; }
+  .deity-card:hover { border-color: var(--gold); transform: translateY(-2px); box-shadow: var(--shadow); }
   .deity-icon { width: 52px; height: 52px; border-radius: 50%; background: var(--gold-faint); border: 1px solid var(--border); margin: 0 auto 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 22px; }
   .deity-name { font-family: var(--font-head); font-size: 12px; letter-spacing: 1px; color: var(--dark); font-weight: 600; margin-bottom: 4px; }
   .deity-main { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); font-family: var(--font-head); }
@@ -133,14 +134,14 @@
   .lightbox-prev { left: 20px; }
   .lightbox-next { right: 20px; }
   
-  .ritual-steps { max-width: 680px; margin: 0 auto; counter-reset: steps; }
-  .ritual-step { display: flex; gap: 1.5rem; align-items: start; padding: 1.5rem 0; border-bottom: 1px solid var(--border); counter-increment: steps; }
+  .ritual-steps { max-width: 680px; margin: 0 auto; counter-reset: steps; display: grid; gap: 0.85rem; }
+  .ritual-step { display: flex; gap: 1.5rem; align-items: start; padding: 1.25rem 1.35rem; border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: var(--radius); background: rgba(255,255,255,0.78); box-shadow: 0 8px 28px rgba(42,20,0,0.06); counter-increment: steps; }
   .ritual-step::before { content: counter(steps, upper-roman); font-family: var(--font-head); font-size: 14px; color: var(--gold); min-width: 32px; padding-top: 4px; font-weight: 600; letter-spacing: 1px; }
   .ritual-step-title { font-family: var(--font-head); font-size: 15px; font-weight: 600; color: var(--dark); margin-bottom: 4px; }
   .ritual-step-desc { font-size: 15px; color: var(--mid); line-height: 1.7; }
   
   .about-content { max-width: 720px; margin: 0 auto; text-align: center; }
-  .about-content p { font-size: 1.1rem; line-height: 2; color: var(--mid); font-style: italic; }
+  .about-content p { font-size: 1.1rem; line-height: 2; color: var(--dark); font-style: italic; font-weight: 500; }
   .about-content p + p { margin-top: 1.5rem; }
   
   .punar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
@@ -224,7 +225,7 @@
     .nav-links.open { display: flex; position: fixed; top: 60px; left: 0; right: 0; max-height: calc(100vh - 60px); overflow-y: auto; background: rgba(26,14,0,0.98); padding: 2rem; border-bottom: 1px solid var(--border); }
     .nav-toggle { display: flex; }
     #hero { min-height: calc(100svh - 44px); padding: 92px 1.25rem 3.5rem; isolation: isolate; }
-    .hero-bg { position: fixed; z-index: -1; background-image: url('../hero_mahavishnu_mobile.png'); background-position: center top; }
+    .hero-bg { position: fixed; z-index: -1; background-image: url('../hero_mahavishnu_mobile.png'); background-position: center top; opacity: 0.28; }
     #hero::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 28%; z-index: 1; background: linear-gradient(180deg, transparent, var(--deep)); pointer-events: none; }
     .hero-title,
     .hero-place,
@@ -235,6 +236,8 @@
     .prog-item { flex-direction: column; gap: 0.5rem; text-align: left; }
     .programmes-list { border-left: none; padding-left: 0; }
     .prog-time { width: fit-content; }
+    .deity-card { background: rgba(255,255,255,0.92); }
+    .ritual-step { gap: 1rem; padding: 1.1rem; background: rgba(255,255,255,0.92); box-shadow: 0 10px 32px rgba(42,20,0,0.1); }
     .trustees-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
     .acharyas-grid { grid-template-columns: 1fr; }
     .acharyas-grid .trustee-avatar { max-width: 100%; height: auto; aspect-ratio: 9/10; }
