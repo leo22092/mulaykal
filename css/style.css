@@ -22,9 +22,9 @@
   .nav-toggle { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
   .nav-toggle span { width: 22px; height: 1.5px; background: var(--gold-light); transition: 0.3s; }
   
-  #hero { min-height: 100vh; background: var(--deep); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; text-align: center; padding: 80px 2rem 4rem; background-size: cover; background-position: center; }
+  #hero { max-width: none; width: 100%; min-height: 100vh; background: var(--deep); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; text-align: center; padding: 80px 2rem 4rem; background-size: cover; background-position: center; }
   .hero-bg { position: absolute; inset: 0; background-color: var(--deep); background-size: cover; background-position: center; transition: background-image 0.5s ease; }
-  .hero-overlay { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 50% at 50% 120%, rgba(201,150,58,0.2) 0%, transparent 80%), radial-gradient(ellipse 60% 40% at 50% 0%, rgba(232,98,26,0.3) 0%, rgba(0,0,0,0.6) 100%); mix-blend-mode: multiply; }
+  .hero-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,5,0,0.32), rgba(10,5,0,0.68)), radial-gradient(ellipse 80% 50% at 50% 120%, rgba(201,150,58,0.2) 0%, transparent 80%), radial-gradient(ellipse 60% 40% at 50% 0%, rgba(232,98,26,0.3) 0%, rgba(0,0,0,0.6) 100%); mix-blend-mode: multiply; }
   .hero-pattern { position: absolute; inset: 0; opacity: 0.04; background-image: repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(201,150,58,1) 39px, rgba(201,150,58,1) 40px), repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(201,150,58,1) 39px, rgba(201,150,58,1) 40px); }
   .hero-om { font-size: 64px; color: var(--gold); opacity: 0.3; margin-bottom: 1rem; animation: pulse 4s ease-in-out infinite; position: relative; z-index: 2;}
   @keyframes pulse { 0%,100%{opacity:0.25} 50%{opacity:0.45} }
@@ -223,6 +223,13 @@
     .nav-links { display: none; flex-direction: column; gap: 1.5rem; }
     .nav-links.open { display: flex; position: fixed; top: 60px; left: 0; right: 0; max-height: calc(100vh - 60px); overflow-y: auto; background: rgba(26,14,0,0.98); padding: 2rem; border-bottom: 1px solid var(--border); }
     .nav-toggle { display: flex; }
+    #hero { min-height: calc(100svh - 44px); padding: 92px 1.25rem 3.5rem; isolation: isolate; }
+    .hero-bg { position: fixed; z-index: -1; background-image: url('../hero_mahavishnu_mobile.png'); background-position: center top; }
+    #hero::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 28%; z-index: 1; background: linear-gradient(180deg, transparent, var(--deep)); pointer-events: none; }
+    .hero-title,
+    .hero-place,
+    .hero-intro { text-shadow: 0 2px 18px rgba(0,0,0,0.72); }
+    .admin-link { display: none; }
     .day-item { grid-template-columns: 1fr; gap: 1rem; text-align: center; }
     .day-num { border-right: none; padding-right: 0; border-bottom: 1.5px solid var(--gold); padding-bottom: 1rem; text-align: center;}
     .prog-item { flex-direction: column; gap: 0.5rem; text-align: left; }

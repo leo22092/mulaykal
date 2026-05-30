@@ -1,10 +1,13 @@
 // Cloudflare worker API endpoint (leave empty to use local data.js)
 
 const CLOUDFLARE_API_URL = "https://temple-data.tkm22092.workers.dev";
+const HERO_MOBILE_IMAGE = "hero_mahavishnu_mobile.png";
+const HERO_MOBILE_QUERY = "(max-width: 768px)";
 // Only load strictly from data.js initially. 
 let data = window.templeData;
 let lightboxImages = [];
 let activeLightboxIndex = 0;
+let heroMediaQuery = null;
 
 async function init() {
   if (CLOUDFLARE_API_URL) {
@@ -56,9 +59,18 @@ if (document.readyState === 'loading') {
 }
 
 function applyGlobalSettings() {
-  if (data.global && data.global.heroImage) {
-    const heroBg = document.getElementById('heroBgImg');
-    if(heroBg) heroBg.style.backgroundImage = `url(${data.global.heroImage})`;
+  const heroBg = document.getElementById('heroBgImg');
+  if (heroBg) {
+    updateHeroBackground();
+    if (!heroMediaQuery) {
+      heroMediaQuery = window.matchMedia(HERO_MOBILE_QUERY);
+      const onHeroViewportChange = () => updateHeroBackground();
+      if (typeof heroMediaQuery.addEventListener === "function") {
+        heroMediaQuery.addEventListener("change", onHeroViewportChange);
+      } else if (typeof heroMediaQuery.addListener === "function") {
+        heroMediaQuery.addListener(onHeroViewportChange);
+      }
+    }
   }
 
   if (data.global && data.global.notification && data.global.notification.enabled) {
@@ -70,6 +82,19 @@ function applyGlobalSettings() {
       mBody.innerText = data.global.notification.text;
       setTimeout(() => modal.classList.add('active'), 800);
     }
+  }
+}
+
+function updateHeroBackground() {
+  const heroBg = document.getElementById('heroBgImg');
+  if (!heroBg) return;
+
+  const desktopImage = data.global && data.global.heroImage ? data.global.heroImage : "";
+  const useMobileHero = window.matchMedia(HERO_MOBILE_QUERY).matches;
+  const heroImage = useMobileHero ? HERO_MOBILE_IMAGE : desktopImage;
+
+  if (heroImage) {
+    heroBg.style.backgroundImage = `url(${heroImage})`;
   }
 }
 
